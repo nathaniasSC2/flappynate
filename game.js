@@ -29,9 +29,10 @@ class Game {
 
         // Obstacles (Pipes)
         this.obstacles = [];
-        this.obstacleFrequency = 90; // frames between obstacles
+        this.obstacleFrequency = 150; // frames between obstacles
         this.obstacleSpeed = 3;
         this.gapSize = 180;
+        this.minObstacleSpacing = 250; // minimum pixel spacing between obstacles
 
         // Power-ups
         this.powerUps = [];
@@ -112,9 +113,13 @@ class Game {
         // Update background
         this.backgroundOffset -= this.getGameSpeed() * 0.5;
 
-        // Spawn obstacles
+        // Spawn obstacles (with minimum spacing check)
         if (this.frameCount % Math.floor(this.obstacleFrequency / this.getGameSpeed()) === 0) {
-            this.spawnObstacle();
+            // Check if last obstacle is far enough away
+            if (this.obstacles.length === 0 ||
+                this.width - this.obstacles[this.obstacles.length - 1].x >= this.minObstacleSpacing) {
+                this.spawnObstacle();
+            }
         }
 
         // Spawn power-ups (roguelike element)
@@ -787,6 +792,13 @@ class Game {
             if (e.code === 'Space' && this.gameState === 'playing') {
                 e.preventDefault();
                 this.jump();
+            }
+
+            // Quick restart with space on game over
+            if (e.code === 'Space' && this.gameState === 'gameOver') {
+                e.preventDefault();
+                document.getElementById('gameOverScreen').classList.add('hidden');
+                this.reset();
             }
 
             if ((e.code === 'Escape' || e.code === 'KeyP') && this.gameState === 'playing') {
