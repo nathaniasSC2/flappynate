@@ -254,7 +254,9 @@ class Game {
     jump() {
         if (this.gameState !== 'playing') return;
 
-        this.player.velocity = this.player.jumpStrength;
+        // Scale jump strength to match slow motion physics
+        const speedMod = this.hasEffect('slowmo') ? 0.5 : 1;
+        this.player.velocity = this.player.jumpStrength * speedMod;
 
         // Create particles
         for (let i = 0; i < 5; i++) {
@@ -644,8 +646,11 @@ class Game {
     getGameSpeed() {
         let speed = this.obstacleSpeed;
 
-        // Increase speed over time (difficulty scaling)
-        speed += Math.floor(this.score / 100) * 0.3;
+        // Increase speed after 30 obstacles (difficulty scaling)
+        if (this.runStats.obstaclesPassed > 30) {
+            const obstaclesPastThreshold = this.runStats.obstaclesPassed - 30;
+            speed += Math.floor(obstaclesPastThreshold / 10) * 0.3;
+        }
 
         // Slow motion effect
         if (this.hasEffect('slowmo')) {
