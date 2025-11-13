@@ -40,6 +40,13 @@ class MultiplayerManager {
                 color: '#cd853f',
                 lightColor: '#deb887',
                 description: 'Tabby Cat Champion'
+            },
+            katie: {
+                name: 'Katie',
+                emoji: '💝',
+                color: '#ff69b4',
+                lightColor: '#ffb6d9',
+                description: 'The One This Game Was Made For ❤️'
             }
         };
 

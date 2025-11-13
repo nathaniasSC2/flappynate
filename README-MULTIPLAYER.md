@@ -6,10 +6,11 @@ A special LAN multiplayer version of Flappy Nathanias where you and Katie can pl
 
 ## ✨ Multiplayer Features
 
-- **🎭 Character Selection**: Choose from 3 playable characters!
+- **🎭 Character Selection**: Choose from 4 playable characters!
   - 🎤 **Nathanias** - The SC2 Commentator Legend
   - 🦮 **Lou** - Golden Retriever Extraordinaire
   - 🐈 **Kiki** - Tabby Cat Champion
+  - 💝 **Katie** - The One This Game Was Made For ❤️
 - **🌐 Auto-Matchmaking**: Automatically pairs players on the same LAN
 - **👀 Spectator Mode**: Watch your opponent when you die
 - **💕 Real-Time Sync**: See each other's positions live during gameplay
@@ -78,6 +79,7 @@ Look for "inet" under your active network interface (en0, eth0, wlan0, etc.)
    - 🎤 **Nathanias** - Classic SC2 commentator
    - 🦮 **Lou** - Adorable golden retriever
    - 🐈 **Kiki** - Clever tabby cat
+   - 💝 **Katie** - The star of the show!
 3. Wait for auto-matching (should be instant!)
 4. Game starts automatically when both are connected
 5. Have fun! 🎮
