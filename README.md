@@ -4,6 +4,20 @@ A sleek, 60fps Flappy Bird clone featuring the legendary StarCraft 2 commentator
 
 ## 💝 Made with Love for Katie 💝
 
+## 🌐 NEW: Multiplayer Edition Available!
+
+**Looking to play with Katie?** Check out **FLAPPYKANT** - the LAN multiplayer edition!
+
+👉 **[See Multiplayer Setup Guide](README-MULTIPLAYER.md)**
+
+Features:
+- 🎮 Play together in real-time on LAN
+- 👀 Spectate each other when you die
+- 🏆 Compete for high scores
+- 💕 All the roguelike features!
+
+---
+
 ## ✨ Features
 
 ### Core Gameplay

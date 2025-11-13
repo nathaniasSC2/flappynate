@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappykant - LAN Multiplayer Edition</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style-multiplayer.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🎮 FLAPPY NATHANIAS 🎮</h1>
+            <p class="subtitle">The Ultimate StarCraft 2 Commentator Experience</p>
+        </div>
+
+        <div class="connection-status" id="connectionStatus">
+            Connecting to server...
+        </div>
+
+        <div class="score-panel">
+            <div class="score-item">
+                <span class="label">SCORE</span>
+                <span id="score" class="value">0</span>
+            </div>
+            <div class="score-item">
+                <span class="label">HIGH SCORE</span>
+                <span id="highScore" class="value">0</span>
+            </div>
+            <div class="score-item">
+                <span class="label">MULTIPLIER</span>
+                <span id="multiplier" class="value">1x</span>
+            </div>
+        </div>
+
+        <div class="opponent-panel hidden" id="opponentPanel">
+            <div class="opponent-info">
+                <span class="label">OPPONENT</span>
+                <span id="opponentNameDisplay" class="value">-</span>
+            </div>
+            <div id="opponentStatus" class="opponent-status">Playing...</div>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div class="power-ups-display" id="powerUpsDisplay"></div>
+
+        <div id="startScreen" class="overlay-screen">
+            <div class="screen-content">
+                <h2>💝 FLAPPYKANT 💝</h2>
+                <p class="intro-text">LAN Multiplayer - Made for Katie ❤️</p>
+                <div class="roguelike-info">
+                    <h3>🌐 MULTIPLAYER FEATURES 🌐</h3>
+                    <ul>
+                        <li>👥 Auto-matchmaking on LAN</li>
+                        <li>👀 Spectate when you die</li>
+                        <li>🏆 Compete for high scores</li>
+                        <li>💕 Play together in real-time</li>
+                        <li>🎮 All the roguelike features!</li>
+                    </ul>
+                </div>
+                <div class="controls-info">
+                    <p>Press <strong>SPACE</strong> or <strong>CLICK</strong> to flap!</p>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: rgba(255,255,255,0.7);">
+                        Waiting for server connection...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameOverScreen" class="overlay-screen hidden">
+            <div class="screen-content">
+                <h2>💥 GAME OVER 💥</h2>
+                <p id="finalScore" class="final-score"></p>
+                <p id="highScoreMessage" class="high-score-msg"></p>
+                <div id="runStats" class="run-stats"></div>
+                <button id="restartButton" class="game-button">PLAY AGAIN</button>
+                <div class="controls-info">
+                    <p>Press <strong>SPACE</strong> to quickly restart!</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="pauseScreen" class="overlay-screen hidden">
+            <div class="screen-content">
+                <h2>⏸️ PAUSED ⏸️</h2>
+                <p>Press <strong>ESC</strong> or <strong>P</strong> to resume</p>
+                <button id="resumeButton" class="game-button">RESUME</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p class="dedication">💝 Made with love for Katie 💝</p>
+            <p class="credits">Featuring the legendary Nathanias - SC2's finest commentator</p>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script src="multiplayer.js"></script>
+</body>
+</html>

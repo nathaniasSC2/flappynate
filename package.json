@@ -1,0 +1,21 @@
+{
+  "name": "flappykant",
+  "version": "1.0.0",
+  "description": "Flappy Nathanias - LAN Multiplayer Edition for Katie",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "game",
+    "multiplayer",
+    "flappy-bird",
+    "nathanias"
+  ],
+  "author": "Made with love for Katie",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.14.2"
+  }
+}

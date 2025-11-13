@@ -1,0 +1,146 @@
+/* ===== FLAPPYKANT MULTIPLAYER STYLES ===== */
+/* Made with love for Katie ❤️ */
+
+.connection-status {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 12px 25px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    font-size: 1.1em;
+    color: #ffd700;
+    animation: pulse 2s infinite;
+}
+
+.opponent-panel {
+    background: rgba(255, 105, 180, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 15px 30px;
+    border: 2px solid rgba(255, 105, 180, 0.5);
+    box-shadow: 0 8px 32px rgba(255, 105, 180, 0.3);
+    text-align: center;
+}
+
+.opponent-panel.hidden {
+    display: none;
+}
+
+.opponent-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.opponent-info .label {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.opponent-info .value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ff69b4;
+    text-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
+}
+
+.opponent-status {
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+/* Name input styling */
+#playerNameInput {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    color: #fff !important;
+    padding: 12px !important;
+    font-size: 1.2em !important;
+    border-radius: 10px !important;
+    text-align: center !important;
+    width: 250px !important;
+    margin: 10px auto !important;
+    display: block !important;
+    transition: all 0.3s;
+}
+
+#playerNameInput:focus {
+    outline: none;
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+#playerNameInput::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Multiplayer-specific animations */
+@keyframes multiplayerGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(255, 105, 180, 0.8);
+    }
+}
+
+.opponent-panel {
+    animation: multiplayerGlow 3s infinite;
+}
+
+/* Connection status colors */
+.connection-status.connected {
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.5);
+}
+
+.connection-status.waiting {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.5);
+}
+
+.connection-status.error {
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.5);
+}
+
+/* Spectator mode overlay */
+.spectator-mode {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 105, 180, 0.9);
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    z-index: 100;
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Enhance footer for Katie */
+.dedication {
+    background: linear-gradient(45deg, #ff69b4, #ffd700, #ff69b4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% auto;
+    animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+    to {
+        background-position: 200% center;
+    }
+}
