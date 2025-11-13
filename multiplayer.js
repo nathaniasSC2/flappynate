@@ -9,12 +9,39 @@ class MultiplayerManager {
         this.roomId = null;
         this.playerNumber = null;
         this.playerName = '';
+        this.playerCharacter = null; // Selected character
         this.opponentName = '';
+        this.opponentCharacter = null; // Opponent's character
         this.opponentState = null;
         this.spectating = false;
         this.opponentAlive = true;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
+
+        // Character definitions
+        this.characters = {
+            nathanias: {
+                name: 'Nathanias',
+                emoji: '🎤',
+                color: '#ffd700',
+                lightColor: '#ffed4e',
+                description: 'SC2 Commentator Legend'
+            },
+            lou: {
+                name: 'Lou',
+                emoji: '🦮',
+                color: '#f4a460',
+                lightColor: '#daa520',
+                description: 'Golden Retriever Extraordinaire'
+            },
+            kiki: {
+                name: 'Kiki',
+                emoji: '🐈',
+                color: '#cd853f',
+                lightColor: '#deb887',
+                description: 'Tabby Cat Champion'
+            }
+        };
 
         this.setupUI();
     }
@@ -100,10 +127,12 @@ class MultiplayerManager {
         this.roomId = data.roomId;
         this.playerNumber = data.playerNumber;
         this.opponentName = data.opponent;
+        this.opponentCharacter = data.opponentCharacter || 'nathanias';
         this.opponentAlive = true;
 
-        console.log(`🎯 Matched with ${this.opponentName}!`);
-        this.updateStatus(`Matched with ${this.opponentName}! Get ready...`);
+        const oppChar = this.characters[this.opponentCharacter];
+        console.log(`🎯 Matched with ${this.opponentName} (${oppChar.emoji} ${oppChar.name})!`);
+        this.updateStatus(`Matched with ${this.opponentName} playing as ${oppChar.emoji} ${oppChar.name}!`);
 
         // Hide start screen and begin game
         setTimeout(() => {
@@ -163,7 +192,7 @@ class MultiplayerManager {
             <input type="text" id="playerNameInput" placeholder="Your name..."
                    style="padding: 10px; font-size: 1.2em; border-radius: 10px; border: 2px solid #fff;
                           background: rgba(255,255,255,0.2); color: #fff; text-align: center; width: 250px;">
-            <button id="joinButton" class="game-button" style="margin-top: 15px;">JOIN GAME</button>
+            <button id="nextButton" class="game-button" style="margin-top: 15px;">NEXT</button>
         `;
 
         // Remove old prompt if exists
@@ -172,24 +201,85 @@ class MultiplayerManager {
 
         content.appendChild(namePrompt);
 
-        // Handle join
-        const joinHandler = () => {
+        // Handle next button
+        const nextHandler = () => {
             const input = document.getElementById('playerNameInput');
             const name = input.value.trim() || 'Player';
             this.playerName = name;
-            this.send({
-                type: 'join',
-                name: name
-            });
             namePrompt.remove();
+            this.showCharacterSelect();
         };
 
-        document.getElementById('joinButton').addEventListener('click', joinHandler);
+        document.getElementById('nextButton').addEventListener('click', nextHandler);
         document.getElementById('playerNameInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') joinHandler();
+            if (e.key === 'Enter') nextHandler();
         });
 
         document.getElementById('playerNameInput').focus();
+    }
+
+    showCharacterSelect() {
+        const startScreen = document.getElementById('startScreen');
+        const content = startScreen.querySelector('.screen-content');
+
+        const charSelect = document.createElement('div');
+        charSelect.id = 'characterSelect';
+        charSelect.innerHTML = `
+            <h3 style="margin: 20px 0;">Choose Your Character</h3>
+            <div class="character-grid">
+                ${Object.keys(this.characters).map(key => {
+                    const char = this.characters[key];
+                    return `
+                        <div class="character-option" data-character="${key}">
+                            <div class="character-emoji">${char.emoji}</div>
+                            <div class="character-name">${char.name}</div>
+                            <div class="character-desc">${char.description}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+            <button id="joinButton" class="game-button" style="margin-top: 20px; opacity: 0.5; pointer-events: none;">
+                SELECT A CHARACTER
+            </button>
+        `;
+
+        // Remove old select if exists
+        const oldSelect = document.getElementById('characterSelect');
+        if (oldSelect) oldSelect.remove();
+
+        content.appendChild(charSelect);
+
+        // Handle character selection
+        const options = charSelect.querySelectorAll('.character-option');
+        const joinButton = document.getElementById('joinButton');
+
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                // Remove previous selection
+                options.forEach(opt => opt.classList.remove('selected'));
+
+                // Select this character
+                option.classList.add('selected');
+                this.playerCharacter = option.dataset.character;
+
+                // Enable join button
+                joinButton.textContent = 'JOIN GAME';
+                joinButton.style.opacity = '1';
+                joinButton.style.pointerEvents = 'auto';
+            });
+        });
+
+        // Handle join
+        joinButton.addEventListener('click', () => {
+            if (!this.playerCharacter) return;
+
+            this.send({
+                type: 'join',
+                name: this.playerName,
+                character: this.playerCharacter
+            });
+            charSelect.remove();
+        });
     }
 
     showOpponentPanel() {
@@ -266,51 +356,64 @@ class MultiplayerManager {
         if (!this.opponentState || !this.opponentAlive) return;
 
         const opponentX = 650; // Right side of screen
-        const p = {
-            x: opponentX,
-            y: this.opponentState.y,
-            width: 40,
-            height: 40,
-            rotation: this.opponentState.rotation,
-            color: '#ff69b4' // Katie's color - pink!
-        };
+        const char = this.characters[this.opponentCharacter] || this.characters.nathanias;
 
         ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rotation * Math.PI / 180);
+        ctx.translate(opponentX, this.opponentState.y);
+        ctx.rotate(this.opponentState.rotation * Math.PI / 180);
 
         // Make opponent slightly transparent
         ctx.globalAlpha = 0.7;
 
-        const size = p.width;
+        const size = 40;
 
-        // Draw opponent (similar to player)
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-size/2, -size/2, size, size);
+        // Draw character based on type
+        if (char.emoji === '🎤') {
+            // Nathanias
+            ctx.fillStyle = char.color;
+            ctx.fillRect(-size/2, -size/2, size, size);
 
-        // Face
-        ctx.fillStyle = '#ffb6d9';
-        ctx.fillRect(-size/2 + 5, -size/2 + 5, size - 10, size - 10);
+            ctx.fillStyle = char.lightColor;
+            ctx.fillRect(-size/2 + 5, -size/2 + 5, size - 10, size - 10);
 
-        // Eyes
-        ctx.fillStyle = '#000';
-        ctx.fillRect(-size/4 - 5, -size/4, 8, 8);
-        ctx.fillRect(size/4 - 3, -size/4, 8, 8);
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-size/4 - 5, -size/4, 8, 8);
+            ctx.fillRect(size/4 - 3, -size/4, 8, 8);
 
-        // Heart symbol for Katie
-        ctx.fillStyle = '#ff1493';
-        ctx.font = 'bold 20px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('♥', 0, 0);
+            // Microphone
+            ctx.fillStyle = '#333';
+            ctx.fillRect(size/2 - 3, size/4, 10, 15);
+            ctx.fillStyle = '#666';
+            ctx.beginPath();
+            ctx.arc(size/2 + 2, size/4, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('N', 0, 0);
+        } else {
+            // Lou or Kiki - use emoji
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(char.emoji, 0, 0);
+        }
 
         ctx.restore();
 
         // Draw opponent name
-        ctx.fillStyle = '#ff69b4';
+        ctx.fillStyle = char.color;
         ctx.font = 'bold 14px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(this.opponentName, opponentX, this.opponentState.y - 40);
+
+        // Draw character name
+        ctx.fillStyle = '#fff';
+        ctx.font = '12px Arial';
+        ctx.fillText(char.name, opponentX, this.opponentState.y - 55);
 
         // Draw opponent score
         ctx.fillStyle = '#fff';
@@ -334,6 +437,65 @@ class MultiplayerManager {
         }
 
         this.updateOpponentStatus(resultMessage);
+    }
+
+    drawPlayer(ctx, player) {
+        if (!this.playerCharacter) return false; // Let game draw default
+
+        const char = this.characters[this.playerCharacter];
+
+        ctx.save();
+        ctx.translate(player.x, player.y);
+        ctx.rotate(player.rotation * Math.PI / 180);
+
+        const size = player.width;
+
+        // Draw character based on type
+        if (char.emoji === '🎤') {
+            // Nathanias - draw pixel art version
+            ctx.fillStyle = char.color;
+            ctx.fillRect(-size/2, -size/2, size, size);
+
+            ctx.fillStyle = char.lightColor;
+            ctx.fillRect(-size/2 + 5, -size/2 + 5, size - 10, size - 10);
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-size/4 - 5, -size/4, 8, 8);
+            ctx.fillRect(size/4 - 3, -size/4, 8, 8);
+
+            // Microphone
+            ctx.fillStyle = '#333';
+            ctx.fillRect(size/2 - 3, size/4, 10, 15);
+            ctx.fillStyle = '#666';
+            ctx.beginPath();
+            ctx.arc(size/2 + 2, size/4, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('N', 0, 0);
+        } else {
+            // Lou or Kiki - use emoji
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(char.emoji, 0, 0);
+        }
+
+        // Shield effect
+        if (this.game.hasEffect && this.game.hasEffect('shield')) {
+            ctx.strokeStyle = 'rgba(100, 200, 255, 0.8)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, size/2 + 10 + Math.sin(this.game.frameCount * 0.1) * 3, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+        return true; // Indicate we drew the player
     }
 
     // Keep-alive ping
@@ -371,6 +533,16 @@ window.addEventListener('load', () => {
                 originalReset();
                 if (multiplayer) {
                     multiplayer.sendRestart();
+                }
+            };
+
+            // Override drawPlayer to use selected character
+            const originalDrawPlayer = window.game.drawPlayer.bind(window.game);
+            window.game.drawPlayer = function() {
+                if (multiplayer && multiplayer.playerCharacter) {
+                    multiplayer.drawPlayer(window.game.ctx, window.game.player);
+                } else {
+                    originalDrawPlayer();
                 }
             };
 

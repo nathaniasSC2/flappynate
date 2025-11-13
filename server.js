@@ -74,6 +74,7 @@ wss.on('connection', (ws) => {
         ws: ws,
         id: generateId(),
         name: '',
+        character: 'nathanias',
         roomId: null,
         ready: false
     };
@@ -120,7 +121,8 @@ wss.on('connection', (ws) => {
 
 function handlePlayerJoin(player, data) {
     player.name = data.name || `Player ${player.id.substring(0, 4)}`;
-    console.log(`✨ ${player.name} joined`);
+    player.character = data.character || 'nathanias';
+    console.log(`✨ ${player.name} joined as ${player.character}`);
 
     // Try to match with waiting player
     if (waitingPlayer && waitingPlayer !== player) {
@@ -141,6 +143,7 @@ function handlePlayerJoin(player, data) {
             type: 'matched',
             roomId: roomId,
             opponent: player.name,
+            opponentCharacter: player.character,
             playerNumber: 1
         }));
 
@@ -148,10 +151,11 @@ function handlePlayerJoin(player, data) {
             type: 'matched',
             roomId: roomId,
             opponent: waitingPlayer.name,
+            opponentCharacter: waitingPlayer.character,
             playerNumber: 2
         }));
 
-        console.log(`🎯 Room created: ${waitingPlayer.name} vs ${player.name}`);
+        console.log(`🎯 Room created: ${waitingPlayer.name} (${waitingPlayer.character}) vs ${player.name} (${player.character})`);
         waitingPlayer = null;
     } else {
         // Player is waiting for opponent
