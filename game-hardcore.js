@@ -19,30 +19,27 @@ class Game {
         this.player = {
             x: 150,
             y: this.height / 2,
-            width: 40,
-            height: 40,
+            width: 42,
+            height: 42,
             velocity: 0,
-            gravity: 0.6,
-            jumpStrength: -9.5,
+            gravity: 0.65,
+            jumpStrength: -10,
             rotation: 0,
             color: '#ffd700'
         };
 
         // Obstacles (Pipes)
         this.obstacles = [];
-        this.obstacleFrequency = 150; // frames between obstacles
-        this.obstacleSpeed = 4;
-        this.gapSize = 150;
-        this.minObstacleSpacing = 200; // minimum pixel spacing between obstacles
+        this.obstacleFrequency = 130; // frames between obstacles
+        this.obstacleSpeed = 4.5;
+        this.gapSize = 140;
+        this.minObstacleSpacing = 180; // minimum pixel spacing between obstacles
 
-        // Power-ups
+        // Power-ups (SKILL-FOCUSED: Only Shield for emergency saves)
         this.powerUps = [];
         this.activePowerUps = [];
         this.powerUpTypes = [
-            { name: 'Shield', emoji: '🛡️', duration: 200, effect: 'shield' },
-            { name: 'Slow Motion', emoji: '⏱️', duration: 120, effect: 'slowmo' },
-            { name: 'Score Boost', emoji: '⭐', duration: 160, effect: 'scoreboost' },
-            { name: 'Tiny Mode', emoji: '🔬', duration: 134, effect: 'tiny' }
+            { name: 'Shield', emoji: '🛡️', duration: 150, effect: 'shield' }
         ];
 
         // Collectibles
@@ -122,13 +119,13 @@ class Game {
             }
         }
 
-        // Spawn power-ups (roguelike element)
-        if (Math.random() < 0.003 && this.powerUps.length < 2) {
+        // Spawn power-ups (VERY RARE - skill-focused)
+        if (Math.random() < 0.002 && this.powerUps.length < 1) {
             this.spawnPowerUp();
         }
 
-        // Spawn collectibles
-        if (Math.random() < 0.005 && this.collectibles.length < 3) {
+        // Spawn collectibles (VERY RARE - minimal distractions)
+        if (Math.random() < 0.003 && this.collectibles.length < 3) {
             this.spawnCollectible();
         }
 
@@ -277,13 +274,12 @@ class Game {
         const maxHeight = this.height - this.gapSize - minHeight;
         const topHeight = Math.random() * (maxHeight - minHeight) + minHeight;
 
-        // Roguelike variation: different obstacle types
-        const types = ['normal', 'moving', 'narrow', 'wide'];
+        // HARDCORE: No wide gaps, weighted toward challenging patterns
+        const types = ['normal', 'normal', 'moving', 'moving', 'narrow', 'narrow'];
         const type = types[Math.floor(Math.random() * types.length)];
 
         let gapSize = this.gapSize;
         if (type === 'narrow') gapSize -= 30;
-        if (type === 'wide') gapSize += 40;
 
         this.obstacles.push({
             x: this.width,
@@ -415,9 +411,15 @@ class Game {
 
     // ===== COLLECTIBLES =====
     spawnCollectible() {
+        // RISKY POSITIONS ONLY: Place collectibles in challenging spots
+        const isTopHalf = Math.random() > 0.5;
+        const riskyY = isTopHalf
+            ? Math.random() * 80 + 40      // Top 40-120px (risky)
+            : Math.random() * 80 + (this.height - 120);  // Bottom area (risky)
+
         this.collectibles.push({
             x: this.width,
-            y: Math.random() * (this.height - 100) + 50,
+            y: riskyY,
             width: 20,
             height: 20,
             value: Math.floor(Math.random() * 5 + 1) * 10,
@@ -646,13 +648,12 @@ class Game {
     getGameSpeed() {
         let speed = this.obstacleSpeed;
 
-        // Increase speed after 15 obstacles (difficulty scaling)
-        if (this.runStats.obstaclesPassed > 15) {
-            const obstaclesPastThreshold = this.runStats.obstaclesPassed - 15;
-            speed += Math.floor(obstaclesPastThreshold / 10) * 0.5;
+        // AGGRESSIVE SCALING: Speed increases from obstacle 1
+        if (this.runStats.obstaclesPassed > 0) {
+            speed += Math.floor(this.runStats.obstaclesPassed / 10) * 0.6;
         }
 
-        // Slow motion effect
+        // Slow motion effect (removed - shield only mode)
         if (this.hasEffect('slowmo')) {
             speed *= 0.5;
         }
@@ -661,8 +662,8 @@ class Game {
     }
 
     updateMultiplier() {
-        // Increase multiplier based on score
-        const newMultiplier = Math.floor(this.score / 30) + 1;
+        // FASTER PROGRESSION: Increase multiplier every 20 points
+        const newMultiplier = Math.floor(this.score / 20) + 1;
 
         if (this.hasEffect('scoreboost')) {
             this.multiplier = newMultiplier * 2;

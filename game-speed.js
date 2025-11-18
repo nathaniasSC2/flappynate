@@ -22,26 +22,26 @@ class Game {
             width: 40,
             height: 40,
             velocity: 0,
-            gravity: 0.7,
-            jumpStrength: -10,
+            gravity: 0.8, // EXTREME: Super fast falling
+            jumpStrength: -11, // EXTREME: Very strong jumps
             rotation: 0,
             color: '#ffd700'
         };
 
         // Obstacles (Pipes)
         this.obstacles = [];
-        this.obstacleFrequency = 100; // frames between obstacles
-        this.obstacleSpeed = 5;
-        this.gapSize = 200;
-        this.minObstacleSpacing = 180; // minimum pixel spacing between obstacles
+        this.obstacleFrequency = 80; // EXTREME: Spawn very frequently (rapid fire)
+        this.obstacleSpeed = 6; // EXTREME: VERY fast base speed
+        this.gapSize = 210; // EXTREME: Slightly wider for fairness at high speed
+        this.minObstacleSpacing = 160; // EXTREME: Rapid fire obstacles
 
-        // Power-ups
+        // Power-ups (EXTREME: Speed-appropriate only)
         this.powerUps = [];
         this.activePowerUps = [];
         this.powerUpTypes = [
-            { name: 'Shield', emoji: '🛡️', duration: 150, effect: 'shield' },
-            { name: 'Score Boost', emoji: '⭐', duration: 120, effect: 'scoreboost' },
-            { name: 'Ghost Mode', emoji: '👻', duration: 75, effect: 'ghost' }
+            { name: 'Shield', emoji: '🛡️', duration: 120, effect: 'shield' }, // EXTREME: 2 seconds
+            { name: 'Ghost Mode', emoji: '👻', duration: 60, effect: 'ghost' } // EXTREME: 1 second - brief reprieve
+            // REMOVED: Score Boost (not relevant to speed challenge)
         ];
 
         // Collectibles
@@ -61,6 +61,13 @@ class Game {
         // Background
         this.clouds = this.generateClouds();
         this.backgroundOffset = 0;
+
+        // EXTREME: Visual intensity features
+        this.screenShake = { x: 0, y: 0, intensity: 0 };
+        this.speedLines = [];
+        this.survivalTime = 0; // Track survival time in frames
+        this.zoneTimer = 0; // For "zone" mechanic
+        this.inZone = false; // Brief periods of even faster speed
 
         // Setup
         this.setupEventListeners();
@@ -93,6 +100,7 @@ class Game {
         if (this.gameState !== 'playing') return;
 
         this.frameCount++;
+        this.survivalTime++; // EXTREME: Track survival time
 
         // Update player
         this.updatePlayer();
@@ -109,6 +117,15 @@ class Game {
         // Update particles
         this.updateParticles();
 
+        // EXTREME: Update screen shake
+        this.updateScreenShake();
+
+        // EXTREME: Update zone mechanic
+        this.updateZoneMechanic();
+
+        // EXTREME: Generate speed lines
+        this.updateSpeedLines();
+
         // Update background
         this.backgroundOffset -= this.getGameSpeed() * 0.5;
 
@@ -122,12 +139,12 @@ class Game {
         }
 
         // Spawn power-ups (roguelike element)
-        if (Math.random() < 0.007 && this.powerUps.length < 2) {
+        if (Math.random() < 0.009 && this.powerUps.length < 2) { // EXTREME: More frequent (needed at high speed)
             this.spawnPowerUp();
         }
 
         // Spawn collectibles
-        if (Math.random() < 0.02 && this.collectibles.length < 3) {
+        if (Math.random() < 0.025 && this.collectibles.length < 3) { // EXTREME: Very frequent (reward for risk)
             this.spawnCollectible();
         }
 
@@ -148,10 +165,20 @@ class Game {
         // Clear canvas
         this.ctx.clearRect(0, 0, this.width, this.height);
 
+        // EXTREME: Apply screen shake
+        this.ctx.save();
+        this.ctx.translate(this.screenShake.x, this.screenShake.y);
+
         // Draw background
         this.drawBackground();
 
-        if (this.gameState === 'start') return;
+        // EXTREME: Draw speed lines
+        this.drawSpeedLines();
+
+        if (this.gameState === 'start') {
+            this.ctx.restore();
+            return;
+        }
 
         // Draw collectibles
         this.collectibles.forEach(c => this.drawCollectible(c));
@@ -170,6 +197,14 @@ class Game {
 
         // Draw active effects
         this.drawActiveEffects();
+
+        this.ctx.restore();
+
+        // EXTREME: Motion blur when speed > 6
+        this.drawMotionBlur();
+
+        // EXTREME: Draw survival timer and zone indicator
+        this.drawSurvivalTimer();
     }
 
     // ===== PLAYER =====
@@ -418,7 +453,7 @@ class Game {
             y: Math.random() * (this.height - 100) + 50,
             width: 20,
             height: 20,
-            value: Math.floor(Math.random() * 5 + 1) * 10,
+            value: Math.floor(Math.random() * 5 + 1) * 20, // EXTREME: Higher values 20-100 points (reward for risk)
             rotation: 0
         });
     }
@@ -488,6 +523,20 @@ class Game {
 
             if (this.player.x + playerSize/2 > o.x &&
                 this.player.x - playerSize/2 < o.x + o.width) {
+
+                // EXTREME: Near-miss detection (screen shake)
+                const nearMissMargin = 30;
+                const isNearMiss = (
+                    (this.player.y - playerSize/2 < o.topHeight + offset + nearMissMargin &&
+                     this.player.y - playerSize/2 > o.topHeight + offset) ||
+                    (this.player.y + playerSize/2 > o.bottomY + offset - nearMissMargin &&
+                     this.player.y + playerSize/2 < o.bottomY + offset)
+                );
+
+                if (isNearMiss && !o.nearMissTriggered) {
+                    this.triggerScreenShake(8);
+                    o.nearMissTriggered = true; // Only trigger once per obstacle
+                }
 
                 if (this.player.y - playerSize/2 < o.topHeight + offset ||
                     this.player.y + playerSize/2 > o.bottomY + offset) {
@@ -644,9 +693,14 @@ class Game {
     getGameSpeed() {
         let speed = this.obstacleSpeed;
 
-        // Speed increases immediately from obstacle 1 (no threshold)
+        // EXTREME: Speed increases immediately from obstacle 1 (no threshold)
         if (this.runStats.obstaclesPassed > 0) {
-            speed += Math.floor(this.runStats.obstaclesPassed / 10) * 0.4;
+            speed += Math.floor(this.runStats.obstaclesPassed / 10) * 0.5; // EXTREME: +0.5 per 10 obstacles (can reach 8+ quickly)
+        }
+
+        // EXTREME: Zone mechanic - even faster speed during zone
+        if (this.inZone) {
+            speed *= 1.5; // 50% faster during zone!
         }
 
         // Slow motion effect
@@ -702,6 +756,13 @@ class Game {
         this.collectibles = [];
         this.particles = [];
 
+        // EXTREME: Reset intensity features
+        this.survivalTime = 0;
+        this.zoneTimer = 0;
+        this.inZone = false;
+        this.speedLines = [];
+        this.screenShake = { x: 0, y: 0, intensity: 0 };
+
         this.runStats = {
             powerUpsCollected: 0,
             bonusesCollected: 0,
@@ -749,6 +810,7 @@ class Game {
 
         runStats.innerHTML = `
             <h3 style="text-align: center; margin-bottom: 10px;">Run Statistics</h3>
+            <div>⏱️ Survival Time: ${(this.survivalTime / 60).toFixed(1)}s</div>
             <div>🎯 Obstacles Passed: ${this.runStats.obstaclesPassed}</div>
             <div>⚡ Power-ups Collected: ${this.runStats.powerUpsCollected}</div>
             <div>💎 Bonuses Collected: ${this.runStats.bonusesCollected}</div>
@@ -778,6 +840,105 @@ class Game {
         return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 +
             (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255))
             .toString(16).slice(1);
+    }
+
+    // ===== EXTREME VISUAL INTENSITY =====
+    updateScreenShake() {
+        if (this.screenShake.intensity > 0) {
+            this.screenShake.x = (Math.random() - 0.5) * this.screenShake.intensity;
+            this.screenShake.y = (Math.random() - 0.5) * this.screenShake.intensity;
+            this.screenShake.intensity *= 0.9; // Decay
+        } else {
+            this.screenShake.x = 0;
+            this.screenShake.y = 0;
+        }
+    }
+
+    triggerScreenShake(intensity = 10) {
+        this.screenShake.intensity = intensity;
+    }
+
+    updateZoneMechanic() {
+        // Zone mechanic: Every 15 seconds, enter "zone" for 3 seconds (even faster speed)
+        this.zoneTimer++;
+
+        if (!this.inZone && this.zoneTimer > 900) { // 15 seconds
+            this.inZone = true;
+            this.zoneTimer = 0;
+        }
+
+        if (this.inZone && this.zoneTimer > 180) { // 3 seconds
+            this.inZone = false;
+            this.zoneTimer = 0;
+        }
+    }
+
+    updateSpeedLines() {
+        const speed = this.getGameSpeed();
+
+        // Generate speed lines when moving fast
+        if (speed > 5 && Math.random() < 0.3) {
+            this.speedLines.push({
+                x: this.width,
+                y: Math.random() * this.height,
+                length: Math.random() * 50 + 30,
+                speed: speed * (1 + Math.random() * 0.5),
+                opacity: Math.random() * 0.5 + 0.3
+            });
+        }
+
+        // Update existing speed lines
+        this.speedLines.forEach(line => {
+            line.x -= line.speed;
+        });
+
+        // Remove off-screen speed lines
+        this.speedLines = this.speedLines.filter(line => line.x > -line.length);
+    }
+
+    drawSpeedLines() {
+        const ctx = this.ctx;
+        this.speedLines.forEach(line => {
+            ctx.strokeStyle = `rgba(255, 255, 255, ${line.opacity})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(line.x, line.y);
+            ctx.lineTo(line.x - line.length, line.y);
+            ctx.stroke();
+        });
+    }
+
+    drawMotionBlur() {
+        const speed = this.getGameSpeed();
+
+        if (speed > 6) {
+            const blurIntensity = Math.min((speed - 6) * 0.05, 0.2);
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${blurIntensity})`;
+            this.ctx.fillRect(0, 0, this.width, this.height);
+        }
+    }
+
+    drawSurvivalTimer() {
+        const ctx = this.ctx;
+        const seconds = (this.survivalTime / 60).toFixed(1);
+
+        // Survival timer (top right)
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'right';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 5;
+        ctx.fillText(`⏱️ ${seconds}s`, this.width - 20, 40);
+
+        // Zone indicator
+        if (this.inZone) {
+            ctx.fillStyle = '#ff0000';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🔥 ZONE MODE 🔥', this.width / 2, 40);
+        }
+
+        ctx.shadowBlur = 0;
     }
 
     // ===== EVENT LISTENERS =====

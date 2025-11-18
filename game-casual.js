@@ -19,31 +19,31 @@ class Game {
         this.player = {
             x: 150,
             y: this.height / 2,
-            width: 40,
-            height: 40,
+            width: 35, // Smaller for easier navigation
+            height: 35,
             velocity: 0,
-            gravity: 0.4,
-            jumpStrength: -8,
+            gravity: 0.3, // Ultra gentle falling
+            jumpStrength: -7, // Softer, more controllable
             rotation: 0,
             color: '#ffd700'
         };
 
-        // Obstacles (Pipes)
+        // Obstacles (Pipes) - Maximum forgiveness
         this.obstacles = [];
-        this.obstacleFrequency = 150; // frames between obstacles
-        this.obstacleSpeed = 2.5;
-        this.gapSize = 220;
-        this.minObstacleSpacing = 300; // minimum pixel spacing between obstacles
+        this.obstacleFrequency = 180; // Spawn less frequently for more breathing room
+        this.obstacleSpeed = 2.0; // Very slow, plenty of reaction time
+        this.gapSize = 250; // HUGE gaps - extremely forgiving
+        this.minObstacleSpacing = 350; // Lots of breathing room between obstacles
 
-        // Power-ups
+        // Power-ups - Extremely helpful with extended durations
         this.powerUps = [];
         this.activePowerUps = [];
         this.powerUpTypes = [
-            { name: 'Shield', emoji: '🛡️', duration: 450, effect: 'shield' },
-            { name: 'Slow Motion', emoji: '⏱️', duration: 270, effect: 'slowmo' },
-            { name: 'Score Boost', emoji: '⭐', duration: 360, effect: 'scoreboost' },
-            { name: 'Tiny Mode', emoji: '🔬', duration: 300, effect: 'tiny' },
-            { name: 'Ghost Mode', emoji: '👻', duration: 225, effect: 'ghost' }
+            { name: 'Shield', emoji: '🛡️', duration: 600, effect: 'shield' }, // 10 seconds!
+            { name: 'Slow Motion', emoji: '⏱️', duration: 360, effect: 'slowmo' }, // 6 seconds
+            { name: 'Score Boost', emoji: '⭐', duration: 480, effect: 'scoreboost' }, // 8 seconds
+            { name: 'Tiny Mode', emoji: '🔬', duration: 400, effect: 'tiny' }, // 6.7 seconds
+            { name: 'Ghost Mode', emoji: '👻', duration: 300, effect: 'ghost' } // 5 seconds
         ];
 
         // Collectibles
@@ -123,13 +123,13 @@ class Game {
             }
         }
 
-        // Spawn power-ups (roguelike element)
-        if (Math.random() < 0.008 && this.powerUps.length < 2) {
+        // Spawn power-ups (roguelike element) - More frequent for accessibility
+        if (Math.random() < 0.012 && this.powerUps.length < 3) { // +50% spawn rate, more on screen
             this.spawnPowerUp();
         }
 
-        // Spawn collectibles
-        if (Math.random() < 0.015 && this.collectibles.length < 3) {
+        // Spawn collectibles - Abundant for encouragement
+        if (Math.random() < 0.02 && this.collectibles.length < 5) { // More frequent, more on screen
             this.spawnCollectible();
         }
 
@@ -643,11 +643,12 @@ class Game {
     getGameSpeed() {
         let speed = this.obstacleSpeed;
 
-        // Casual mode: Increase speed after 50 obstacles (gentler difficulty scaling)
-        if (this.runStats.obstaclesPassed > 50) {
-            const obstaclesPastThreshold = this.runStats.obstaclesPassed - 50;
-            speed += Math.floor(obstaclesPastThreshold / 10) * 0.2;
-        }
+        // ACCESSIBILITY MODE: NO difficulty scaling - constant speed for predictability
+        // Players can build confidence and enjoy the game without increasing pressure
+        // if (this.runStats.obstaclesPassed > 50) {
+        //     const obstaclesPastThreshold = this.runStats.obstaclesPassed - 50;
+        //     speed += Math.floor(obstaclesPastThreshold / 10) * 0.2;
+        // }
 
         // Slow motion effect
         if (this.hasEffect('slowmo')) {
