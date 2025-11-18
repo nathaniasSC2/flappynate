@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Nathanias - Mode Comparison Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
+            color: #fff;
+            overflow-x: hidden;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #fff, #ffd700, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #ffd700;
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #ffd700;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mode Cards Grid */
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .mode-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            border-color: #ffd700;
+        }
+
+        .mode-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .mode-emoji {
+            font-size: 3em;
+        }
+
+        .mode-title {
+            flex: 1;
+        }
+
+        .mode-title h3 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .mode-subtitle {
+            color: #ffd700;
+            font-size: 0.9em;
+        }
+
+        .difficulty-stars {
+            display: flex;
+            gap: 3px;
+            margin: 15px 0;
+        }
+
+        .star {
+            font-size: 1.3em;
+        }
+
+        .star.filled {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .star.empty {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .mode-features {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .mode-features li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.95em;
+        }
+
+        .mode-features li:last-child {
+            border-bottom: none;
+        }
+
+        .mode-stats {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+
+        .mode-stats div {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .play-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .play-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.8);
+        }
+
+        .user-rating {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .rating-star {
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-star:hover {
+            transform: scale(1.2);
+        }
+
+        /* Comparison Table */
+        .comparison-table-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow-x: auto;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            color: #ffd700;
+            position: sticky;
+            top: 0;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .param-name {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .value-high {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .value-medium {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .value-low {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        /* Charts */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar-label {
+            width: 100px;
+            font-size: 0.9em;
+        }
+
+        .bar-container {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .bar-value {
+            font-size: 0.85em;
+            font-weight: bold;
+            width: 50px;
+            text-align: right;
+        }
+
+        /* Recommendations */
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .recommendation-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-3px);
+            border-color: #ffd700;
+            box-shadow: 0 12px 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .recommendation-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .recommendation-card p {
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .recommended-mode {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        /* Rankings */
+        .rankings-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .ranking-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ranking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .ranking-mode-name {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .notes-area {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 10px;
+            color: white;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+            margin-top: 10px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .export-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .export-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.8);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+        }
+
+        .dedication {
+            font-size: 1.3em;
+            color: #ff69b4;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.8);
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .modes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 FLAPPY NATHANIAS MODE COMPARISON 🎮</h1>
+            <p>Compare all game modes and find your perfect challenge!</p>
+        </div>
+
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showSection('overview')">🏠 Overview</div>
+            <div class="nav-tab" onclick="showSection('comparison')">📊 Comparison</div>
+            <div class="nav-tab" onclick="showSection('charts')">📈 Charts</div>
+            <div class="nav-tab" onclick="showSection('recommendations')">💡 Recommendations</div>
+            <div class="nav-tab" onclick="showSection('rankings')">⭐ Your Rankings</div>
+        </div>
+
+        <!-- OVERVIEW SECTION -->
+        <div id="overview" class="section active">
+            <div class="modes-grid" id="modesGrid"></div>
+        </div>
+
+        <!-- COMPARISON TABLE SECTION -->
+        <div id="comparison" class="section">
+            <div class="comparison-table-container">
+                <h2 style="color: #ffd700; margin-bottom: 20px;">📊 Detailed Parameter Comparison</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th class="param-name">Parameter</th>
+                            <th>🎯 Original</th>
+                            <th>😌 Casual</th>
+                            <th>💀 Hardcore</th>
+                            <th>⚡ Speed</th>
+                            <th>🌀 Chaos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="param-name">Gravity</td>
+                            <td class="value-medium">0.5</td>
+                            <td class="value-low">0.4</td>
+                            <td class="value-high">0.6</td>
+                            <td class="value-high">0.7</td>
+                            <td class="value-medium">0.5*</td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">Jump Strength</td>
+                            <td class="value-medium">-9</td>
+                            <td class="value-low">-8</td>
+                            <td class="value-high">-9.5</td>
+                            <td class="value-high">-10</td>
+                            <td class="value-medium">-9*</td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">Obstacle Speed</td>
+                            <td class="value-medium">3</td>
+                            <td class="value-low">2.5</td>
+                            <td class="value-high">4</td>
+                            <td class="value-high">5</td>
+                            <td class="value-medium">3</td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">Gap Size</td>
+                            <td class="value-medium">180</td>
+                            <td class="value-low">220</td>
+                            <td class="value-high">150</td>
+                            <td class="value-medium">200</td>
+                            <td class="value-medium">180*</td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">Obstacle Frequency</td>
+                            <td class="value-medium">150f</td>
+                            <td class="value-low">150f</td>
+                            <td class="value-medium">150f</td>
+                            <td class="value-high">100f</td>
+                            <td class="value-medium">150f</td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">Obstacle Spacing</td>
+                            <td class="value-medium">250px</td>
+                            <td class="value-low">300px</td>
+                            <td class="value-high">200px</td>
+                            <td class="value-high">180px</td>
+                            <td class="value-medium">250px</td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">Power-up Types</td>
+                            <td>5 types</td>
+                            <td>5 types</td>
+                            <td class="value-high">4 types</td>
+                            <td class="value-high">3 types</td>
+                            <td>7 types</td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">Power-up Duration</td>
+                            <td class="value-medium">Standard</td>
+                            <td class="value-low">+50%</td>
+                            <td class="value-high">-33%</td>
+                            <td class="value-high">-50%</td>
+                            <td class="value-medium">Standard</td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">Unique Features</td>
+                            <td>Roguelike</td>
+                            <td>Forgiving</td>
+                            <td>No Ghost</td>
+                            <td>Fast-paced</td>
+                            <td>Randomness</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top: 20px; font-size: 0.9em; color: rgba(255,255,255,0.7);">
+                    * Chaos mode randomizes these values during gameplay
+                </p>
+            </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div id="charts" class="section">
+            <div class="charts-container" id="chartsContainer"></div>
+        </div>
+
+        <!-- RECOMMENDATIONS SECTION -->
+        <div id="recommendations" class="section">
+            <div class="comparison-table-container">
+                <h2 style="color: #ffd700; margin-bottom: 20px;">💡 Find Your Perfect Mode</h2>
+                <div class="recommendations-grid">
+                    <div class="recommendation-card" onclick="highlightMode('casual')">
+                        <h4>😌 Want to Relax?</h4>
+                        <p>Looking for a chill, forgiving experience with longer power-ups and bigger gaps</p>
+                        <div class="recommended-mode">→ Casual Mode</div>
+                    </div>
+                    <div class="recommendation-card" onclick="highlightMode('hardcore')">
+                        <h4>💀 Want a Challenge?</h4>
+                        <p>Test your skills with tighter gaps, faster obstacles, and shorter power-ups</p>
+                        <div class="recommended-mode">→ Hardcore Mode</div>
+                    </div>
+                    <div class="recommendation-card" onclick="highlightMode('speed')">
+                        <h4>⚡ Want Fast Action?</h4>
+                        <p>Lightning-fast gameplay that tests your reflexes to the limit</p>
+                        <div class="recommended-mode">→ Speed Mode</div>
+                    </div>
+                    <div class="recommendation-card" onclick="highlightMode('chaos')">
+                        <h4>🌀 Want Chaos?</h4>
+                        <p>Unpredictable madness with randomized physics and crazy events</p>
+                        <div class="recommended-mode">→ Chaos Mode</div>
+                    </div>
+                    <div class="recommendation-card" onclick="highlightMode('original')">
+                        <h4>🎯 Want the Original?</h4>
+                        <p>Balanced roguelike experience with all features and power-ups</p>
+                        <div class="recommended-mode">→ Original Mode</div>
+                    </div>
+                    <div class="recommendation-card" onclick="highlightMode('multiplayer')">
+                        <h4>👥 Want Competition?</h4>
+                        <p>Play with friends on LAN and compete for high scores</p>
+                        <div class="recommended-mode">→ Multiplayer Mode</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RANKINGS SECTION -->
+        <div id="rankings" class="section">
+            <div class="rankings-container">
+                <h2 style="color: #ffd700; margin-bottom: 20px;">⭐ Your Personal Rankings</h2>
+                <p style="margin-bottom: 20px; color: rgba(255,255,255,0.8);">
+                    Rate each mode and add your notes. Your rankings are saved locally.
+                </p>
+                <div id="rankingsContent"></div>
+                <div class="export-buttons">
+                    <button class="export-button" onclick="exportRankings()">📥 Export Rankings</button>
+                    <button class="export-button" onclick="importRankings()">📤 Import Rankings</button>
+                    <button class="export-button" onclick="clearRankings()">🗑️ Clear All Rankings</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p class="dedication">💝 Made with love for Katie 💝</p>
+        </div>
+    </div>
+
+    <script>
+        // Game modes data
+        const modes = [
+            {
+                id: 'original',
+                name: 'Original',
+                emoji: '🎯',
+                subtitle: 'Classic Roguelike Experience',
+                difficulty: 3,
+                targetPlayer: 'Balanced players',
+                file: 'index.html',
+                description: 'The classic Flappy Nathanias experience with roguelike features, random power-ups, and progressive difficulty.',
+                features: [
+                    '🎲 5 unique power-ups',
+                    '🌟 Score multipliers',
+                    '💎 Collectible bonuses',
+                    '🔥 Balanced difficulty',
+                    '⚡ Standard physics'
+                ],
+                stats: {
+                    gravity: 0.5,
+                    jumpStrength: 9,
+                    obstacleSpeed: 3,
+                    gapSize: 180,
+                    powerUpDuration: '100%'
+                }
+            },
+            {
+                id: 'casual',
+                name: 'Casual',
+                emoji: '😌',
+                subtitle: 'Relaxed & Forgiving',
+                difficulty: 1,
+                targetPlayer: 'Beginners & chill players',
+                file: 'index-casual.html',
+                description: 'A more forgiving experience with slower obstacles, larger gaps, and extended power-up durations.',
+                features: [
+                    '🌸 Gentle gravity (0.4)',
+                    '🎈 Larger gaps (220px)',
+                    '🐌 Slower obstacles (2.5)',
+                    '⏰ 50% longer power-ups',
+                    '💚 More spacing (300px)'
+                ],
+                stats: {
+                    gravity: 0.4,
+                    jumpStrength: 8,
+                    obstacleSpeed: 2.5,
+                    gapSize: 220,
+                    powerUpDuration: '+50%'
+                }
+            },
+            {
+                id: 'hardcore',
+                name: 'Hardcore',
+                emoji: '💀',
+                subtitle: 'Ultimate Challenge',
+                difficulty: 5,
+                targetPlayer: 'Skilled veterans',
+                file: 'index-hardcore.html',
+                description: 'For those who seek mastery. Tight gaps, fast obstacles, reduced power-ups, and unforgiving gameplay.',
+                features: [
+                    '⚡ Strong gravity (0.6)',
+                    '🔥 Smaller gaps (150px)',
+                    '💨 Fast obstacles (4)',
+                    '⏱️ 33% shorter power-ups',
+                    '❌ No Ghost Mode power-up'
+                ],
+                stats: {
+                    gravity: 0.6,
+                    jumpStrength: 9.5,
+                    obstacleSpeed: 4,
+                    gapSize: 150,
+                    powerUpDuration: '-33%'
+                }
+            },
+            {
+                id: 'speed',
+                name: 'Speed',
+                emoji: '⚡',
+                subtitle: 'Lightning Fast Reflexes',
+                difficulty: 4,
+                targetPlayer: 'Reflex masters',
+                file: 'index-speed.html',
+                description: 'Everything is faster. Test your reflexes with rapid obstacles and minimal power-ups.',
+                features: [
+                    '🚀 Very fast obstacles (5)',
+                    '⚡ High gravity (0.7)',
+                    '🎯 Frequent obstacles (100f)',
+                    '⏰ 50% shorter power-ups',
+                    '🔥 Only 3 power-up types'
+                ],
+                stats: {
+                    gravity: 0.7,
+                    jumpStrength: 10,
+                    obstacleSpeed: 5,
+                    gapSize: 200,
+                    powerUpDuration: '-50%'
+                }
+            },
+            {
+                id: 'chaos',
+                name: 'Chaos',
+                emoji: '🌀',
+                subtitle: 'Unpredictable Madness',
+                difficulty: 4,
+                targetPlayer: 'Chaos lovers',
+                file: 'index-chaos.html',
+                description: 'Expect the unexpected! Random physics, changing gravity, variable gaps, and wild events.',
+                features: [
+                    '🎲 Randomized gravity',
+                    '🌪️ Variable jump strength',
+                    '🎰 Random gap sizes',
+                    '🎨 Screen tint effects',
+                    '🔀 7 power-up types'
+                ],
+                stats: {
+                    gravity: '0.3-0.8',
+                    jumpStrength: '7-11',
+                    obstacleSpeed: 3,
+                    gapSize: 'Random',
+                    powerUpDuration: '100%'
+                }
+            },
+            {
+                id: 'multiplayer',
+                name: 'Multiplayer',
+                emoji: '👥',
+                subtitle: 'LAN Competition',
+                difficulty: 3,
+                targetPlayer: 'Social players',
+                file: 'index-multiplayer.html',
+                description: 'Compete with friends on your local network. Auto-matchmaking, spectate mode, and shared high scores.',
+                features: [
+                    '🌐 Auto LAN matchmaking',
+                    '👀 Spectate when dead',
+                    '🏆 Compete for scores',
+                    '💕 Play with Katie',
+                    '🎮 All roguelike features'
+                ],
+                stats: {
+                    gravity: 0.5,
+                    jumpStrength: 9,
+                    obstacleSpeed: 3,
+                    gapSize: 180,
+                    powerUpDuration: '100%'
+                }
+            }
+        ];
+
+        // Initialize
+        let currentSection = 'overview';
+        let userRatings = JSON.parse(localStorage.getItem('flappyNateRatings') || '{}');
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+
+            currentSection = sectionId;
+
+            // Load section content
+            if (sectionId === 'rankings') {
+                renderRankings();
+            } else if (sectionId === 'charts') {
+                renderCharts();
+            }
+        }
+
+        // Render mode cards
+        function renderModeCards() {
+            const grid = document.getElementById('modesGrid');
+            grid.innerHTML = modes.map(mode => `
+                <div class="mode-card" id="card-${mode.id}">
+                    <div class="mode-card-header">
+                        <div class="mode-emoji">${mode.emoji}</div>
+                        <div class="mode-title">
+                            <h3>${mode.name}</h3>
+                            <div class="mode-subtitle">${mode.subtitle}</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <strong>Difficulty:</strong>
+                        <div class="difficulty-stars">
+                            ${Array(5).fill(0).map((_, i) =>
+                                `<span class="star ${i < mode.difficulty ? 'filled' : 'empty'}">★</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+
+                    <div style="margin: 10px 0;">
+                        <strong>Target:</strong> ${mode.targetPlayer}
+                    </div>
+
+                    <p style="margin: 15px 0; font-size: 0.95em; line-height: 1.5;">
+                        ${mode.description}
+                    </p>
+
+                    <ul class="mode-features">
+                        ${mode.features.map(f => `<li>${f}</li>`).join('')}
+                    </ul>
+
+                    <div class="mode-stats">
+                        <div><span>Gravity:</span><span>${mode.stats.gravity}</span></div>
+                        <div><span>Jump:</span><span>${mode.stats.jumpStrength}</span></div>
+                        <div><span>Speed:</span><span>${mode.stats.obstacleSpeed}</span></div>
+                        <div><span>Gap:</span><span>${mode.stats.gapSize}</span></div>
+                        <div><span>Power-ups:</span><span>${mode.stats.powerUpDuration}</span></div>
+                    </div>
+
+                    <a href="${mode.file}" class="play-button">▶️ PLAY NOW</a>
+
+                    <div class="user-rating">
+                        <div style="font-size: 0.9em; margin-bottom: 5px; text-align: center;">Your Rating:</div>
+                        <div class="rating-stars" id="rating-${mode.id}">
+                            ${Array(5).fill(0).map((_, i) =>
+                                `<span class="rating-star" onclick="rateMode('${mode.id}', ${i + 1})">${
+                                    userRatings[mode.id]?.rating > i ? '⭐' : '☆'
+                                }</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render charts
+        function renderCharts() {
+            const container = document.getElementById('chartsContainer');
+
+            const charts = [
+                {
+                    title: '📊 Difficulty Comparison',
+                    data: modes.map(m => ({ label: m.name, value: m.difficulty * 20 }))
+                },
+                {
+                    title: '⚡ Obstacle Speed',
+                    data: modes.filter(m => !isNaN(parseFloat(m.stats.obstacleSpeed)))
+                        .map(m => ({ label: m.name, value: parseFloat(m.stats.obstacleSpeed) * 20 }))
+                },
+                {
+                    title: '🎈 Gap Size',
+                    data: modes.filter(m => !isNaN(parseFloat(m.stats.gapSize)))
+                        .map(m => ({ label: m.name, value: parseFloat(m.stats.gapSize) / 2.5 }))
+                },
+                {
+                    title: '🌍 Gravity Force',
+                    data: modes.filter(m => !isNaN(parseFloat(m.stats.gravity)))
+                        .map(m => ({ label: m.name, value: parseFloat(m.stats.gravity) * 100 }))
+                }
+            ];
+
+            container.innerHTML = charts.map(chart => `
+                <div class="chart-card">
+                    <h3>${chart.title}</h3>
+                    <div class="bar-chart">
+                        ${chart.data.map(item => `
+                            <div class="bar-item">
+                                <div class="bar-label">${item.label}</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" style="width: ${item.value}%">
+                                        ${item.value > 20 ? Math.round(item.value) + '%' : ''}
+                                    </div>
+                                </div>
+                                <div class="bar-value">${Math.round(item.value)}%</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Rate mode
+        function rateMode(modeId, rating) {
+            if (!userRatings[modeId]) {
+                userRatings[modeId] = { rating: 0, notes: '' };
+            }
+            userRatings[modeId].rating = rating;
+            localStorage.setItem('flappyNateRatings', JSON.stringify(userRatings));
+
+            // Update display
+            const ratingContainer = document.getElementById(`rating-${modeId}`);
+            ratingContainer.innerHTML = Array(5).fill(0).map((_, i) =>
+                `<span class="rating-star" onclick="rateMode('${modeId}', ${i + 1})">${
+                    rating > i ? '⭐' : '☆'
+                }</span>`
+            ).join('');
+        }
+
+        // Render rankings
+        function renderRankings() {
+            const container = document.getElementById('rankingsContent');
+
+            const sortedModes = [...modes].sort((a, b) => {
+                const ratingA = userRatings[a.id]?.rating || 0;
+                const ratingB = userRatings[b.id]?.rating || 0;
+                return ratingB - ratingA;
+            });
+
+            container.innerHTML = sortedModes.map((mode, index) => `
+                <div class="ranking-item">
+                    <div class="ranking-header">
+                        <div>
+                            <span style="font-size: 2em; margin-right: 10px;">${mode.emoji}</span>
+                            <span class="ranking-mode-name">${mode.name}</span>
+                        </div>
+                        <div class="rating-stars">
+                            ${Array(5).fill(0).map((_, i) =>
+                                `<span class="rating-star" onclick="rateMode('${mode.id}', ${i + 1}); renderRankings();">${
+                                    (userRatings[mode.id]?.rating || 0) > i ? '⭐' : '☆'
+                                }</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <textarea
+                        class="notes-area"
+                        placeholder="Add your notes about this mode..."
+                        onchange="saveNotes('${mode.id}', this.value)"
+                    >${userRatings[mode.id]?.notes || ''}</textarea>
+                </div>
+            `).join('');
+        }
+
+        // Save notes
+        function saveNotes(modeId, notes) {
+            if (!userRatings[modeId]) {
+                userRatings[modeId] = { rating: 0, notes: '' };
+            }
+            userRatings[modeId].notes = notes;
+            localStorage.setItem('flappyNateRatings', JSON.stringify(userRatings));
+        }
+
+        // Export rankings
+        function exportRankings() {
+            const dataStr = JSON.stringify(userRatings, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'flappy-nathanias-rankings.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Import rankings
+        function importRankings() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        userRatings = imported;
+                        localStorage.setItem('flappyNateRatings', JSON.stringify(userRatings));
+                        renderModeCards();
+                        renderRankings();
+                        alert('Rankings imported successfully!');
+                    } catch (err) {
+                        alert('Error importing rankings: Invalid file format');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Clear rankings
+        function clearRankings() {
+            if (confirm('Are you sure you want to clear all ratings and notes?')) {
+                userRatings = {};
+                localStorage.removeItem('flappyNateRatings');
+                renderModeCards();
+                renderRankings();
+            }
+        }
+
+        // Highlight mode
+        function highlightMode(modeId) {
+            showSection('overview');
+            setTimeout(() => {
+                const card = document.getElementById(`card-${modeId}`);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.style.border = '3px solid #ffd700';
+                    card.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.8)';
+                    setTimeout(() => {
+                        card.style.border = '2px solid rgba(255, 255, 255, 0.2)';
+                        card.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+                    }, 2000);
+                }
+            }, 300);
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderModeCards();
+            renderCharts();
+        });
+    </script>
+</body>
+</html>
